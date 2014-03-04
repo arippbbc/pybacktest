@@ -4,9 +4,6 @@
 
 """ Set of data-loading helpers """
 
-import pandas
-
-
 def load_from_yahoo(ticker='SPY', start='1900', adjust_close=False):
     """ Loads data from Yahoo. After loading it renames columns to shorter
     format, which is what Backtest expects.
@@ -22,7 +19,9 @@ def load_from_yahoo(ticker='SPY', start='1900', adjust_close=False):
                 ticker=t, start=start, adjust_close=adjust_close)
              for t in ticker})
 
-    data = pandas.io.data.DataReader(ticker, data_source='yahoo', start=start)
+    import pandas
+    import pandas.io.data as web
+    data = web.DataReader(ticker, data_source='yahoo', start=start)
     data = data.rename(columns={'Open': 'O', 'High': 'H', 'Low': 'L',
                                 'Close': 'C', 'Adj Close': 'AC',
                                 'Volume': 'V'})
