@@ -66,6 +66,7 @@ RIY = ['DDD','MMM','AAN','ABT','ABBV','ANF','ACN','ACE','ACT','ATVI','ADBE','ADT
 pf_eq = e.copy()
 pf_eq[:] = 0
 for s in RIY:
+    # these three symbol could not be found by free server
     if s not in ['BEAM', 'BRE', 'LSI']:
         x = ticker_to_eq(s)
         #x.fillna(0, inplace=True)
@@ -73,15 +74,31 @@ for s in RIY:
         r[s] = x.RET
         #pf_eq[s] = x.SRET.fillna(value=0)
 
+# e contains cci of all symbols, i didn't name it cci cause I want it to be generic, drop unnecessary column
 e = e.drop('OEQ', 1)
+# r is the log return of all symbols, drop unnecessary column
 r = r.drop('OEQ', 1)
+
+# m is the cci mean of all symbols, row by row, or day by day
 m = e.mean(axis = 1)
+
+# adjust cci to be cci minus mean of all cci day by day
 e = e-m
+
+# f is taking absolute value of adjusted cci
 f = np.abs(e)
+
+# x is the sum of absolute adjusted cci
 x = f.sum(axis = 1)
+
+# weighted by sum(absolute adjusted cci)
 e = e/x
 
+# return for each symbol is log return*weight, then sum by each row to get portfolio return for that day
+# shift signal by one day back
 p = (e.shift()*r).sum(axis = 1)
+
+# equity curve is exp of cumulative log return
 eq = np.exp(p.cumsum())
 
 eq.plot()
